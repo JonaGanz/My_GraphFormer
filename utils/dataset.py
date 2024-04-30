@@ -107,3 +107,30 @@ class GraphDataset(data.Dataset):
 
     def __len__(self):
         return len(self.ids)
+    
+class MyGraphDataset(data.Dataset):
+    """input and label image dataset"""
+
+    def __init__(self, path_to_graphs, df, num_classes = 244):
+        super(MyGraphDataset, self).__init__()
+        self.path_to_graphs = path_to_graphs
+        self.df = df
+        #self.target_patch_size = target_patch_size
+        self.classdict = {i: i for i in range(num_classes)}
+        
+    def __getitem__(self, index):
+        # dict to return the sample
+        sample = {}
+        # get the image file name from dataframe
+        file_name, label = self.df.iloc[index, 0], self.df.iloc[index, 1]
+        sample['label'] = label
+        sample['id'] = file_name
+        # load the adj matrix
+        sample['adj_s'] = torch.load(os.path.join(self.path_to_graphs, file_name, 'adj_s.pt'))
+        # load the features
+        sample['image'] = torch.load(os.path.join(self.path_to_graphs, file_name, 'features.pt'))
+        return sample
+
+
+    def __len__(self):
+        return len(self.df)

@@ -16,12 +16,13 @@ from .gcn import GCNBlock
 from torch_geometric.nn import GCNConv, DenseGraphConv, dense_mincut_pool
 from torch.nn import Linear
 class Classifier(nn.Module):
-    def __init__(self, n_class):
+    def __init__(self, n_class, GCN_input_dim:int = 512, return_logits:bool = False):
         super(Classifier, self).__init__()
-
+        self.GCN_input_dim = GCN_input_dim
         self.embed_dim = 64
         self.num_layers = 3
         self.node_cluster_num = 100
+        self.return_logits = return_logits
 
         self.transformer = VisionTransformer(num_classes=n_class, embed_dim=self.embed_dim)
         self.cls_token = nn.Parameter(torch.zeros(1, 1, self.embed_dim))
@@ -30,7 +31,14 @@ class Classifier(nn.Module):
         self.bn = 1
         self.add_self = 1
         self.normalize_embedding = 1
-        self.conv1 = GCNBlock(512,self.embed_dim,self.bn,self.add_self,self.normalize_embedding,0.,0)       # 64->128
+        self.conv1 = GCNBlock(
+            self.GCN_input_dim,
+            self.embed_dim,
+            self.bn,
+            self.add_self,
+            self.normalize_embedding,
+            0.,
+            0)       # 64->128
         self.pool1 = Linear(self.embed_dim, self.node_cluster_num)                                          # 100-> 20
 
 
@@ -97,4 +105,7 @@ class Classifier(nn.Module):
 
                 torch.save(cam, 'graphcam/cam_{}.pt'.format(index_))
 
-        return pred,labels,loss
+        if not self.return_logits:
+            return pred, labels, loss
+        else:
+            return pred, labels, loss, out 

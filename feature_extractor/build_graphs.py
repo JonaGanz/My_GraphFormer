@@ -95,11 +95,11 @@ def compute_feats(args, bags_list, i_classifier, save_path=None, whole_slide_pat
             csv_file_path = glob.glob(os.path.join(bags_list[i], '*.jpeg'))
             file_name = bags_list[i].split('/')[-3].split('_')[0]
         if args.magnification == '5x' or args.magnification == '10x':
-            csv_file_path = glob.glob(os.path.join(bags_list[i], '*.jpg'))
-
+            csv_file_path = glob.glob(os.path.join(bags_list[i], '*.jpeg'))
+            file_name = bags_list[i].split('/')[1].split('_')[0]
+        # print(csv_file_path)
         dataloader, bag_size = bag_dataset(args, csv_file_path)
         print('{} files to be processed: {}'.format(len(csv_file_path), file_name))
-
         if os.path.isdir(os.path.join(save_path, 'simclr_files', file_name)) or len(csv_file_path) < 1:
             print('alreday exists')
             continue
@@ -157,14 +157,14 @@ def main():
     # load feature extractor
     if args.weights is None:
         print('No feature extractor')
-        return
-    state_dict_weights = torch.load(args.weights)
-    state_dict_init = i_classifier.state_dict()
-    new_state_dict = OrderedDict()
-    for (k, v), (k_0, v_0) in zip(state_dict_weights.items(), state_dict_init.items()):
-        name = k_0
-        new_state_dict[name] = v
-    i_classifier.load_state_dict(new_state_dict, strict=False)
+        #return
+    # state_dict_weights = torch.load(args.weights)
+    # state_dict_init = i_classifier.state_dict()
+    # new_state_dict = OrderedDict()
+    # for (k, v), (k_0, v_0) in zip(state_dict_weights.items(), state_dict_init.items()):
+    #     name = k_0
+    #     new_state_dict[name] = v
+    # i_classifier.load_state_dict(new_state_dict, strict=False)
  
     os.makedirs(args.output, exist_ok=True)
     bags_list = glob.glob(args.dataset)

@@ -363,6 +363,8 @@ class GCNBlock(nn.Module):
 
     def forward(self, x, adj, mask):
         y = torch.matmul(adj, x)
+        # print(f"y: {y.shape}")
+        # print(f"weight {self.weight.shape}")    
         if self.add_self:
             y += x
         y = torch.matmul(y,self.weight)

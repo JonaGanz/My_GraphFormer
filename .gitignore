@@ -1,0 +1,13 @@
+*/data
+/Rebuttal
+/logs
+*/output
+*/__pycache__
+
+
+*.ipynb
+*.pth
+*.csv
+*.jpg
+*.jpeg
+*.png
