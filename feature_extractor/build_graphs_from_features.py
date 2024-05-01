@@ -32,7 +32,6 @@ def adj_matrix(coords, step_size=256, down_sampling_factor=2):
     adj_s[mask] = 1
 
     adj_s = torch.from_numpy(adj_s)
-    adj_s = adj_s.cuda()
 
     return adj_s
 
@@ -62,7 +61,6 @@ def compute_feats(joined_list, save_path = None, step_size = 256, down_sampling_
         os.symlink(path_to_features, os.path.join(save_path, 'simclr_files', file_name, 'features.pt'))
         # compute adjacent matrix
         adj_s = adj_matrix(coords, step_size=step_size, down_sampling_factor=down_sampling_factor)
-        adj_s = adj_s.cpu()
         torch.save(adj_s, os.path.join(save_path, 'simclr_files', file_name, 'adj_s.pt'))
         print('\r Computed: {}/{}'.format(i+1, num_bags))
         
