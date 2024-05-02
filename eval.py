@@ -20,8 +20,8 @@ def parse_args():
     parser.add_argument('--path_to_labels', type = str, default = None, help = 'Path to the csv file containing the labels')
     parser.add_argument('--path_to_splits', type = str, default = None, help = 'Path to the folder containing the splits')
     parser.add_argument('--k', type=int, default = 5, help = 'k fold cross validation')
-    parser.add_argument('--k_start', type=int, default = 0, help = 'k fold start')
-    parser.add_argument('--k_end', type=int, default = 5, help = 'k fold end')
+    parser.add_argument('--k_start', type=int, default = None, help = 'k fold start')
+    parser.add_argument('--k_end', type=int, default = None, help = 'k fold end')
     parser.add_argument('--device', type=str, default = 'cuda', help = 'device')
     parser.add_argument('--num_workers', type=int, default = 4, help = 'number of workers')
     parser.add_argument('--evaluate_on', type=str, default = 'test', choices=['train','val','test'], help = 'Dataset to evaluate on')
@@ -51,8 +51,8 @@ def main(args):
     # initilize dataset
     
     # read the respective split
-    start = args.k_start
-    end = args.k_end if args.k_end <= args.k else args.k
+    start = args.k_start if args.k_start is not None else 0
+    end = args.k_end if args.k_end is not None else args.k
     
     for i in range(start,end):
         print(f"Loading split {i}...\n")
@@ -74,7 +74,7 @@ def main(args):
         model.to(args.device)
         model.eval()
         # initilize evaluator
-        evaluator = Evaluator(n_class, return_logits=True)
+        evaluator = Evaluator(n_class, return_logits=True,embed_dim=config['embed_dim'])
         resutls = {}
         with torch.no_grad():
             for batch in tqdm(dl, total = len(dl), desc = f'Processing split {i}'):
