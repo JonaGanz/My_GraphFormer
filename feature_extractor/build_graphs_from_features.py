@@ -13,6 +13,7 @@ import numpy as np
 from PIL import Image
 from collections import OrderedDict
 import h5py
+from os import path
 
 def adj_matrix(coords, step_size=256, down_sampling_factor=2):
     total = len(coords)
@@ -58,6 +59,9 @@ def compute_feats(joined_list, save_path = None, step_size = 256, down_sampling_
         txt_file = open(os.path.join(save_path, 'simclr_files', file_name, 'c_idx.txt'), "w+")
         save_coords(txt_file, coords)
         # make symlink to features
+        # ckeck if path_to_features is an absolute path, if not make it absolute
+        if not path.isabs(path_to_features):
+            path_to_features = os.path.abspath(path_to_features)
         os.symlink(path_to_features, os.path.join(save_path, 'simclr_files', file_name, 'features.pt'))
         # compute adjacent matrix
         adj_s = adj_matrix(coords, step_size=step_size, down_sampling_factor=down_sampling_factor)
