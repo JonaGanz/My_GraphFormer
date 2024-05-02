@@ -13,7 +13,6 @@ import numpy as np
 from PIL import Image
 from collections import OrderedDict
 import h5py
-from os import path
 
 def adj_matrix(coords, step_size=256, down_sampling_factor=2):
     total = len(coords)
@@ -52,10 +51,6 @@ def load_coords(path_to_coords:str):
 def compute_feats(joined_list, save_path = None, step_size = 256, down_sampling_factor = 2):
     num_bags = len(joined_list)
     for i, (file_name, path_to_features, path_to_coords) in tqdm(enumerate(joined_list), total=num_bags, desc='Computing adj. matrices'):
-        # check if already computed
-        if os.path.exists(os.path.join(save_path, 'simclr_files', file_name, 'adj_s.pt')):
-            print(f'Already computed: {file_name}')
-            continue
         # load coords
         coords = load_coords(path_to_coords)
         # make top dir
@@ -64,9 +59,6 @@ def compute_feats(joined_list, save_path = None, step_size = 256, down_sampling_
         txt_file = open(os.path.join(save_path, 'simclr_files', file_name, 'c_idx.txt'), "w+")
         save_coords(txt_file, coords)
         # make symlink to features
-        # ckeck if path_to_features is a absolute path, if not make it absolute
-        if not os.path.isabs(path_to_features):
-            path_to_features = os.path.abspath(path_to_features)
         os.symlink(path_to_features, os.path.join(save_path, 'simclr_files', file_name, 'features.pt'))
         # compute adjacent matrix
         adj_s = adj_matrix(coords, step_size=step_size, down_sampling_factor=down_sampling_factor)
