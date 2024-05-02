@@ -3,7 +3,7 @@
 /logs
 */output
 */__pycache__
-
+/graphs_LSCC_uni
 
 *.ipynb
 *.pth
@@ -11,3 +11,5 @@
 *.jpg
 *.jpeg
 *.png
+*.pt
+*.txt
