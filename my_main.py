@@ -138,10 +138,10 @@ def train(
         if val_acc > best_acc:
             best_acc = val_acc
         if val_loss < best_loss: 
-            best_loss = val_loss
             if not test:
                 print(f"{val_loss:.3f} is less than {best_loss:.3f}, saving model...")
                 torch.save(model.state_dict(), model_path / f"{str(fold_number)}.pth")
+            best_loss = val_loss
             early_stopping_counter = 0
         else:
             # early stopping
@@ -260,7 +260,8 @@ def main(args):
             test = args.test,
             model_path = Path(args.checkpoint_path)/args.exp_code,
             logging = args.logging,
-            embed_dim = args.embed_dim
+            embed_dim = args.embed_dim,
+            patience = args.patience,
             )
         
         val_res.append([i, val_acc, val_loss])
