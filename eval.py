@@ -26,7 +26,7 @@ def parse_args():
     parser.add_argument('--num_workers', type=int, default = 4, help = 'number of workers')
     parser.add_argument('--evaluate_on', type=str, default = 'test', choices=['train','val','test'], help = 'Dataset to evaluate on')
     parser.add_argument('--batch_size', type=int, default = 8, help = 'Batch size')
-    
+    parser.add_argument('--sparse_adj_matrix', action='store_true', default=False, help='use sparse adj matrix')
     return parser.parse_args()
 
 def read_yaml(file_path):
@@ -65,7 +65,7 @@ def main(args):
         df.columns = ['slide_id','label']
         df.reset_index(drop=True, inplace=True)
         # initilize dataset and dataloader
-        ds = MyGraphDataset(path_to_graphs, df, num_classes=n_class)
+        ds = MyGraphDataset(path_to_graphs, df, num_classes=n_class, load_from_sparse_tensor=args.sparse_adj_matrix)
         dl = DataLoader(ds, batch_size=args.batch_size, num_workers=args.num_workers, collate_fn=collate)
         del ds,df
         # initilize model
