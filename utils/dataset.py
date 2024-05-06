@@ -111,12 +111,23 @@ class GraphDataset(data.Dataset):
 class MyGraphDataset(data.Dataset):
     """input and label image dataset"""
 
-    def __init__(self, path_to_graphs, df, num_classes = 244):
+    def __init__(self, path_to_graphs, df, num_classes = 244, load_from_sparse_tensor: bool = False):
         super(MyGraphDataset, self).__init__()
         self.path_to_graphs = path_to_graphs
         self.df = df
         #self.target_patch_size = target_patch_size
         self.classdict = {i: i for i in range(num_classes)}
+        # select the function to load the adj matrix depending on the flag load_from_sparse_tensor
+        if load_from_sparse_tensor:
+            self.load_adj_matrix = self.load_from_sparse_tensor
+        else:
+            self.load_adj_matrix = self.load_from_dense_tensor
+        
+    def load_from_sparse_tensor(self, file_name: str):
+        return torch.load(os.path.join(self.path_to_graphs, file_name, 'adj_s.pt')).to_dense()
+
+    def load_from_dense_tensor(self, file_name: str):
+        return torch.load(os.path.join(self.path_to_graphs, file_name, 'adj_s.pt'))
         
     def __getitem__(self, index):
         # dict to return the sample
@@ -126,7 +137,7 @@ class MyGraphDataset(data.Dataset):
         sample['label'] = label
         sample['id'] = file_name
         # load the adj matrix
-        sample['adj_s'] = torch.load(os.path.join(self.path_to_graphs, file_name, 'adj_s.pt'))
+        sample['adj_s'] = self.load_adj_matrix(file_name)
         # load the features
         sample['image'] = torch.load(os.path.join(self.path_to_graphs, file_name, 'features.pt'))
         return sample

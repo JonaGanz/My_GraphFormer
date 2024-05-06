@@ -191,6 +191,7 @@ def parse_args():
     parser.add_argument('--embed_dim', type=int, default = 1024, help = 'embedding dimension')
     parser.add_argument('--num_workers', type=int, default = 4, help = 'number of workers')
     parser.add_argument('--patience', type=int, default = 5, help = 'early stopping patience')
+    parser.add_argument('--sparse_adj_matrix', action='store_true', default=False, help='use sparse adj matrix')
     return parser.parse_args()
 
 
@@ -232,9 +233,9 @@ def main(args):
         test_df.reset_index(drop=True, inplace=True)
         print(f"Initializing datasets....\n")
         # construct dataset and dataloader
-        train_ds = MyGraphDataset(args.path_to_graphs, train_df, num_classes=n_class)
-        val_ds = MyGraphDataset(args.path_to_graphs, val_df, num_classes=n_class)
-        test_ds = MyGraphDataset(args.path_to_graphs, test_df, num_classes=n_class)
+        train_ds = MyGraphDataset(args.path_to_graphs, train_df, num_classes=n_class, load_from_sparse_tensor=args.sparse_adj_matrix)
+        val_ds = MyGraphDataset(args.path_to_graphs, val_df, num_classes=n_class, load_from_sparse_tensor=args.sparse_adj_matrix)
+        test_ds = MyGraphDataset(args.path_to_graphs, test_df, num_classes=n_class, load_from_sparse_tensor=args.sparse_adj_matrix)
         
         train_dl = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, collate_fn=collate, num_workers=args.num_workers)
         val_dl = DataLoader(val_ds, batch_size=args.batch_size, shuffle=False, collate_fn=collate, num_workers=args.num_workers)
