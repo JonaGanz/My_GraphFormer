@@ -48,7 +48,7 @@ def load_coords(path_to_coords:str):
         coord = hdf5_file['coords'][:]
     return coord
 
-def compute_feats(joined_list, save_path = None, step_size = 256, down_sampling_factor = 2):
+def compute_feats(joined_list, save_path = None, step_size = 256, down_sampling_factor = 2, save_sparse_array = True):
     num_bags = len(joined_list)
     for i, (file_name, path_to_features, path_to_coords) in tqdm(enumerate(joined_list), total=num_bags, desc='Computing adj. matrices'):
         # load coords
@@ -65,6 +65,8 @@ def compute_feats(joined_list, save_path = None, step_size = 256, down_sampling_
         os.symlink(path_to_features, os.path.join(save_path, 'simclr_files', file_name, 'features.pt'))
         # compute adjacent matrix
         adj_s = adj_matrix(coords, step_size=step_size, down_sampling_factor=down_sampling_factor)
+        if save_sparse_array:
+            adj_s = adj_s.to_sparse()
         torch.save(adj_s, os.path.join(save_path, 'simclr_files', file_name, 'adj_s.pt'))
         print('\r Computed: {}/{}'.format(i+1, num_bags))
         
@@ -76,6 +78,7 @@ def main():
     parser.add_argument('--path_to_patches',help='Path to h5 files containing patches', type=str, default=None)
     parser.add_argument('--step_size', help='Step size used during patch extraction', type=int, default=256)
     parser.add_argument('--down_sampling_factor', help='Down sampling factor used during patch extraction', type=int, default=2)
+    parser.add_argument('--save_sparse_array', type=bool , default = True, help='Save the sparse array of the adjacency matrix')
     args = parser.parse_args()
     
     os.makedirs(args.output, exist_ok=True)
@@ -88,6 +91,6 @@ def main():
         coords_file = [f for f in patches_list if slide_id in f][0]
         joined.append([slide_id,i, coords_file])
        
-    compute_feats(joined_list=joined, save_path=args.output, step_size=args.step_size, down_sampling_factor=args.down_sampling_factor)
+    compute_feats(joined_list=joined, save_path=args.output, step_size=args.step_size, down_sampling_factor=args.down_sampling_factor, save_sparse_array=args.save_sparse_array)
 if __name__ == '__main__':
     main()
